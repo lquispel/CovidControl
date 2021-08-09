@@ -1,0 +1,42 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">CovidControl</a>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+          <span class="navbar-text">
+                Turn: {{ game.game_state.current_turn }}
+          </span>
+        </div>
+      </nav>
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#"> Player View </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#"> Data View </a>
+        </li>
+        <li>
+          <form class="container-fluid justify-content-start" method="POST" >
+            {% csrf_token %}
+            <input type="hidden" id="next_turn_button" name="action" value="next_turn">
+            <button class="btn btn-outline-success me-2" type="submit" formaction="{% url 'game_view' %}"> Next Turn </button>
+          </form>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#"> Help </a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Settings
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <li><a class="dropdown-item" href="#">Game</a></li>
+            <li><a class="dropdown-item" href="#">Simulation</a></li>
+            <li><a class="dropdown-item" href="#">Player</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

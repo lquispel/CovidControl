@@ -2,9 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Game,Player,Settings,Simulation,GameState
+from .models import Game,Player,Simulation
 
-def player_view(request):
+def game_view(request):
     try:
         current_player = Player.objects.get(id=request.session['player_id'])
         if request.session['current_game_id'] == 0:
@@ -20,8 +20,8 @@ def player_view(request):
     except ObjectDoesNotExist:
         return HttpResponse("Error: player/game not found.")
     request.session['current_game_id'] = game.id
-    if 'action' in request.GET:
-        if request.GET.get('action') == 'next_turn':
+    if request.method == 'POST':
+        if request.POST.get('action') == 'next_turn':
             game.next_turn()
-    return render(request, "GameEngine/player_view.html", {'game': game})
+    return render(request, "GameEngine/game_view.html", {'game': game})
 
