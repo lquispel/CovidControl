@@ -1,6 +1,5 @@
 from django.db import models
 
-
 class Simulation(models.Model):
     n_total = models.IntegerField(default=0)
     n_infected = models.IntegerField(default=0)
@@ -10,4 +9,5 @@ class Simulation(models.Model):
 
     def step(self,state,stepsize):
         return state
+
 

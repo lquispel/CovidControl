@@ -23,5 +23,8 @@ def game_view(request):
     if request.method == 'POST':
         if request.POST.get('action') == 'next_turn':
             game.next_turn()
-    return render(request, "GameEngine/game_view.html", {'game': game})
+    return render(request, "GameEngine/game_view.html", {'game': game, 'mode': "master"})
+
+def test_view(request):
+    return render(request, "GameEngine/test.html")
 

@@ -1,32 +1,34 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">CovidControl</a>
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
-      <nav class="navbar navbar-light bg-light">
-        <div class="container-fluid">
-          <span class="navbar-text">
-                Turn: {{ game.game_state.current_turn }}
-          </span>
-        </div>
-      </nav>
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#"> Player View </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#"> Data View </a>
-        </li>
-        <li>
-          <form class="container-fluid justify-content-start" method="POST" >
-            {% csrf_token %}
-            <input type="hidden" id="next_turn_button" name="action" value="next_turn">
-            <button class="btn btn-outline-success me-2" type="submit" formaction="{% url 'game_view' %}"> Next Turn </button>
-          </form>
-        </li>
-        <li class="nav-item">
+    <ul class="nav nav-pills">
+      <li>
+        <div class="navbar-brand">CovidControl</div>
+      </li>
+      <li>
+        <div class="navbar-text"> Turn: {{ game.game_state.current_turn }} </div>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link active" href="#player_view" data-toggle="pill"> Player View </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#data_view" data-toggle="pill"> Data View </a>
+      </li>
+      <li class="nav-item">
+        {% if mode == "master" %}
+          <a class="nav-link" href="#master_view" data-toggle="pill"> Master View </a>
+        {% else %}
           <a class="nav-link" href="#"> Help </a>
-        </li>
-        <li class="nav-item dropdown">
+        {% endif %}
+      </li>
+      <li>
+      <form class="container-fluid justify-content-start" method="POST" >
+          {% csrf_token %}
+          <input type="hidden" id="next_turn_button" name="action" value="next_turn">
+          <button class="btn btn-outline-success me-2" type="submit" formaction="{% url 'game_view' %}"> Next Turn </button>
+        </form>
+      </li>
+      <li class="nav-item">
+        <div class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Settings
           </a>
@@ -35,8 +37,13 @@
             <li><a class="dropdown-item" href="#">Simulation</a></li>
             <li><a class="dropdown-item" href="#">Player</a></li>
           </ul>
-        </li>
-      </ul>
+        </div>
+      </li>
+    </ul>
     </div>
   </div>
 </nav>
+
+
+
+

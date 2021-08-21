@@ -3,13 +3,13 @@
 {% block game_view %}
 
 <div class="d-flex flex-wrap mt-2">
-        <table class="table">
-           <tr>
-               <td> Welcome !!! </td>
-           </tr>
-            <tr>
-               <td> This is Covid Control  </td>
-        </table>
+     <div class="tab-content">
+        {% include 'GameEngine/player_view.html' %}
+        {% include 'GameEngine/data_view.html' %}
+        {% if mode == "master" %}
+            {% include 'GameEngine/master_view.html' %}
+        {% endif %}
+     </div>
 </div>
 
 {% endblock %}
