@@ -1,11 +1,11 @@
 from django.db import models
 
 import sys
-sys.path.append("../Simulation")
-from Simulation.models import Simulation
+
+from covid_control.CovidSims import CovasimSim
 
 class Player(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200,default='anonymous')
 
     def __str__(self):
         return self.name
@@ -14,7 +14,23 @@ class GameState(models.Model):
     current_turn = models.IntegerField(default=1)
 
     def __str__(self):
-        return str(self.game) + "_" + str(self.current_turn)
+        return str(self.game) + "_t" + str(self.current_turn)
+
+class Simulation(models.Model):
+    type = models.CharField(max_length=20,default="")
+    start_date = models.DateField()
+
+    def init(self,type="covasim",start_date='2019-01-19'):
+        self.type = type
+        self.start_date = start_date
+        if type == "covasim":
+            sim = CovasimSim()
+        sim.initialize(start_day_date=start_date)
+
+    def step(self,step_size):
+        if self.type == "covasim":
+            sim = CovasimSim()
+        sim.step(step_size)
 
 class Settings(models.Model):
     simulation = models.ForeignKey(Simulation, on_delete=models.CASCADE,related_name="settings")
@@ -30,12 +46,13 @@ class Game(models.Model):
     settings = models.ForeignKey(Settings,on_delete=models.CASCADE,related_name="games")
 
     def __str__(self):
-        return self.player.name + "_" + str(self.id)
+        return str(self.player.id) + "_" + str(self.id) + "_" + self.player.name
 
     def next_turn(self):
-        self.history.add(self.game_state)
         current_turn = self.game_state.current_turn + 1
-        self.game_state = self.settings.simulation.step(self.game_state,self.settings.step_size)
+        self.history.add(self.game_state)
+        self.settings.simulation.step(self.settings.step_size)
+        self.game_state = GameState()
         self.game_state.current_turn = current_turn
         self.game_state.save()
         self.save()
@@ -51,6 +68,7 @@ class Game(models.Model):
             if settings == None:
                 settings = Settings()
                 simulation = Simulation()
+                simulation.init()
                 simulation.save()
                 settings.simulation = simulation
                 settings.save()
