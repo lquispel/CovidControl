@@ -1,5 +1,8 @@
 from django.db import models
 
+from datetime import date
+from datetime import timedelta
+
 import sys
 
 from covid_control.CovidSims import CovasimSim
@@ -12,29 +15,31 @@ class Player(models.Model):
 
 class GameState(models.Model):
     current_turn = models.IntegerField(default=1)
+    current_date = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return str(self.game) + "_t" + str(self.current_turn)
 
 class Simulation(models.Model):
     type = models.CharField(max_length=20,default="")
-    start_date = models.DateField()
+    sim = None
 
-    def init(self,type="covasim",start_date='2019-01-19'):
+    def init(self,type="covasim",start_date='2019-01-19',end_date='2021-09-01'):
         self.type = type
-        self.start_date = start_date
         if type == "covasim":
-            sim = CovasimSim()
-        sim.initialize(start_day_date=start_date)
+            self.sim = CovasimSim()
+        self.sim.initialize(start_day_date=start_date,end_day_date=end_date)
 
     def step(self,step_size):
         if self.type == "covasim":
-            sim = CovasimSim()
-        sim.step(step_size)
+            self.sim = CovasimSim()
+        self.sim.step(step_size)
 
 class Settings(models.Model):
     simulation = models.ForeignKey(Simulation, on_delete=models.CASCADE,related_name="settings")
     step_size = models.IntegerField(default=1)
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return "settings_" + str(self.id)
@@ -50,10 +55,12 @@ class Game(models.Model):
 
     def next_turn(self):
         current_turn = self.game_state.current_turn + 1
+        current_date = self.game_state.current_date + timedelta(days=self.settings.step_size)
         self.history.add(self.game_state)
-        self.settings.simulation.step(self.settings.step_size)
+        self.settings.simulation.step(current_date)
         self.game_state = GameState()
         self.game_state.current_turn = current_turn
+        self.game_state.current_date = current_date
         self.game_state.save()
         self.save()
 
@@ -67,13 +74,17 @@ class Game(models.Model):
             game.player = player
             if settings == None:
                 settings = Settings()
+                settings.step_size = 3
+                settings.start_date = date.fromisoformat('2019-01-23')
+                settings.end_date = date.fromisoformat('2021-09-01')
                 simulation = Simulation()
-                simulation.init()
+                simulation.init(type="covasim",start_date=settings.start_date.isoformat(),end_date=settings.end_date.isoformat())
                 simulation.save()
                 settings.simulation = simulation
                 settings.save()
             game.settings = settings
             gamestate = GameState()
+            gamestate.current_date = settings.start_date
             gamestate.save()
             game.game_state = gamestate
             game.save()
